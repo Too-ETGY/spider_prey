@@ -1,0 +1,143 @@
+<?php    
+include_once(__DIR__ . '/../../include/config.php');
+include_once(__DIR__ . '/../../include/header.php');
+
+session_start();
+if (!isset($_SESSION['admin']) || $_SESSION['admin'] !== true) {
+    header("Location: index.php?page=login");
+    exit;
+}
+
+?>
+<main class="container">
+    <div class="container-md bg-color2 p-4 my-5" style="max-width: 800px;">
+        <h1 class="text-white font2 display-6">Add Game</h1>
+
+    <?php
+    if (isset($_POST['submit']) || isset($_POST['submit_redirect'])) {
+        // Sanitize and validate inputs
+        $name = trim($_POST["name"]);
+        $dupes = trim($_POST['dupes_name'] ?? '');
+        $skill = trim($_POST['skill_name'] ?? '');
+        $amplifier = trim($_POST['stat_amplifier'] ?? '');
+
+        $errors = [];
+        // === Text validations ===
+        if (empty($name)) {
+            $errors[] = "Game name is required.";
+        }
+
+        $filename = $_FILES["icon"]["name"] ?? '';
+        $tmpName = $_FILES["icon"]["tmp_name"] ?? '';
+        $fileSize = $_FILES["icon"]["size"] ?? 0;
+        
+        $newfilename = '';
+
+        // === Image validations ===
+        if (empty($filename)) {
+            $errors[] = "Game icon is required.";
+        } else {
+            $allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+            $allowedExts = ['png', 'jpg', 'jpeg', 'webp'];
+            $fileType = mime_content_type($tmpName);
+            $fileExt = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+
+            if (!in_array($fileType, $allowedTypes) || !in_array($fileExt, $allowedExts)) {
+                $errors[] = "Only PNG, JPG, or WEBP images are allowed.";
+            }
+
+            if ($fileSize > 10 * 1024 * 1024) {
+                $errors[] = "Image must be under 2MB.";
+            }
+
+            if (!getimagesize($tmpName)) {
+                $errors[] = "Uploaded file is not a valid image.";
+            }
+        }
+
+        // === If valid, save image and insert ===
+        if (empty($errors)) {
+            $newfilename = uniqid('game_', true) . '.' . $fileExt;
+            $uploadDir = __DIR__ . '/../../uploads/';
+            $uploadPath = $uploadDir . $newfilename;
+
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+
+            if (move_uploaded_file($tmpName, $uploadPath)) {
+                $name = mysqli_real_escape_string($conn, htmlspecialchars($name));
+                $dupes = mysqli_real_escape_string($conn, htmlspecialchars($dupes));
+                $skill = mysqli_real_escape_string($conn, htmlspecialchars($skill));
+                $amplifier = mysqli_real_escape_string($conn, htmlspecialchars($amplifier));
+
+                $query = "INSERT INTO game_table (game_name, game_icon, dupes_name, skill_name, stat_amplifier)
+                        VALUES ('$name', '$newfilename', '$dupes', '$skill', '$amplifier')";
+                $result = mysqli_query($conn, $query);
+
+                if ($result) {
+                    if (isset($_POST['submit_redirect'])) {
+                        $last_id = mysqli_insert_id($conn);
+                        echo "<script>alert('Game Added!'); window.location.href = 'index.php?page=categories/edit&id=".$last_id."';</script>";
+                    } else {
+                        echo "<script>alert('Failed to Add Game!'); window.location.href = 'index.php?page=game';</script>";
+                    }
+                } else {
+                    echo "<p style='color:red;'>Database error: " . mysqli_error($conn) . "</p>";
+                }
+            } else {
+                echo "<p style='color:red;'>Failed to upload image file.</p>";
+            }
+        } else {
+            foreach ($errors as $error) {
+                echo "<p style='color:red;'>$error</p>";
+            }
+        }
+    }
+    ?>
+
+    <form action="" method="post" enctype="multipart/form-data" id="gameForm" class="text-white font1 mt-4">
+        <div class="row mb-3">
+            <label for="name" class="col-sm-2 col-form-label">Game Name</label>
+            <div class="col-sm-10">
+                <input type="text" name="name" class="form-control" id="name" required>
+            </div>
+        </div>
+        
+        <div class="row mb-3">
+            <label for="icon" class="col-sm-2 col-form-label">Game Icon</label>
+            <div class="col-sm-10">
+                <input class="form-control" name="icon" type="file" id="icon" required>
+            </div>
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="dupes_name">What's the dupes system called?</label>
+            <input type="text" name="dupes_name" id="dupes_name" class="form-control" placeholder="Leave blank if none">
+        </div>
+        
+        <div class="form-group mb-3">
+            <label for="skill_name">What's the skill system called?</label>
+            <input type="text" name="skill_name" id="skill_name" class="form-control" placeholder="Leave blank if none">
+        </div>
+        
+        <div class="form-group mb-3">
+            <label for="stat_amplifier">What kind of a stat amplifier does it have?</label>
+            <input type="text" name="stat_amplifier" id="stat_amplifier" class="form-control" placeholder="Leave blank if none">
+        </div>
+        
+        <div class="mt-4 d-flex justify-content-end align-items-center gap-2">
+            <button type="submit" name="submit" class="btn btn-success h-100">Submit</button>
+            <a href="<?= BASE_URL?>/index.php?page=game" class="btn btn-secondary text-white">Back</a>
+        </div>
+        <div class="mt-2 d-flex justify-content-end">
+            <button type="submit" name="submit_redirect" class="btn btn-primary text-white">Submit and Add a Category</button>
+        </div>
+    </form>
+</div>
+</main>
+
+<?php 
+// include_once(__DIR__ . '/../../include/footer.php'); 
+mysqli_close($conn);
+?>
