@@ -57,7 +57,7 @@ include_once(__DIR__ . '/../include/navbar_home.php');
                     while($row = mysqli_fetch_assoc($result)) {
                         echo "<div class='col-lg-3 col-sm-6 col-12 mt-0 text-center'>";
                         echo "<a href='index.php?page=character/character&id=" .$row["id"]. "' class='text-decoration-none text-white justify-content-center mx-auto'>";
-                        echo "<img src='".BASE_URL."/uploads/" .$row["game_icon"]. "' alt='' class='custom-img-size rounded-2 d-block p-0 mx-auto'>";
+                        echo "<img src='".BASE_URL."/uploads/game/" .$row["game_icon"]. "' alt='' class='custom-img-size rounded-2 d-block p-0 mx-auto'>";
                         echo "<p class='fs-5 font1 mb-0'>".$row["game_name"]."</p></a></div>";
                     }
                     echo '</div> <a href="index.php?page=game" class="btn text-white mt-3" style="min-width: 15%; background-color: rgba(61,54,92, 0.75);">More</a>';

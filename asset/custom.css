@@ -112,15 +112,19 @@
   color: #FFFFFF;
 }
 
-/* .cutoff-text{
-    --max-line: 5;
-    line-clamp: var(--max-line); 
-    
-    display: -webkit-box;
-    overflow: hidden;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: var(--max-line);
+/* .text-limit {
+    background-color: antiquewhite;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  max-width: 100%;
+text-align: left !important;
 } */
+
 
 @media (min-height: 1300px) {
     .fs-special{

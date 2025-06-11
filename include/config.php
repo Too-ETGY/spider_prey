@@ -22,11 +22,9 @@ date_default_timezone_set('Asia/Jakarta');
 // }
 
 // Fungsi untuk redirect jika belum login
-// function requireLogin() {
-//     if (!isLoggedIn()) {
-//         header("Location: login.php");
-//         exit();
-//     }
+// if (!isset($_SESSION['admin']) || $_SESSION['admin'] !== true) {
+//     header("Location: index.php?page=login");
+//     exit;
 // }
 
 // Membuat koneksi
@@ -34,4 +32,16 @@ $conn = mysqli_connect($host, $username, $password, $database);
 // Cek koneksi
 if (!$conn) {
     die("Koneksi gagal: " . mysqli_connect_error());
+}
+
+function time_elapsed_string($datetime) {
+    $now = new DateTime;
+    $ago = new DateTime($datetime);
+    $diff = $now->diff($ago);
+
+    if ($diff->d > 0) return $diff->d . " day" . ($diff->d > 1 ? "s" : "") . " ago";
+    if ($diff->h > 0) return $diff->h . " hour" . ($diff->h > 1 ? "s" : "") . " ago";
+    if ($diff->i > 0) return $diff->i . " minute" . ($diff->i > 1 ? "s" : "") . " ago";
+
+    return "just now";
 }

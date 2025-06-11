@@ -3,32 +3,47 @@ include_once(__DIR__ . '/../../include/config.php');
 include_once(__DIR__ . '/../../include/navbar_home.php');
 // session_start();
 
-// === DELETE logic ===
+// === DELETE logic using prepared statements ===
 if (isset($_POST['delete'])) {
     $id = (int) ($_POST['id'] ?? 0);
 
     if ($id > 0) {
-        $query = "SELECT game_icon FROM game_table WHERE id = $id";
-        $query_run = @mysqli_query($conn, $query);
+        // Get the icon file name first
+        $stmt = $conn->prepare("SELECT game_icon FROM game_table WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-        if ($query_run && mysqli_num_rows($query_run) > 0) {
-            $row = mysqli_fetch_assoc($query_run);
+        if ($result && $result->num_rows > 0) {
+            $row = $result->fetch_assoc();
             $iconFile = $row['game_icon'];
 
-            $delete = mysqli_query($conn, "DELETE FROM game_table WHERE id = $id");
+            // Delete the game
+            $delStmt = $conn->prepare("DELETE FROM game_table WHERE id = ?");
+            $delStmt->bind_param("i", $id);
+            $deleteSuccess = $delStmt->execute();
 
-            if ($delete) {
-                $imagePath = __DIR__ . '/../../uploads/' . $iconFile;
-                if ($iconFile && file_exists($imagePath)) {
+            if ($deleteSuccess) {
+                // Delete the icon file from the server if it exists
+                $imagePath = __DIR__ . '/../../uploads/game/' . $iconFile;
+                if (!empty($iconFile) && file_exists($imagePath)) {
                     unlink($imagePath);
                 }
-                echo "<script>alert('Game Deleted!');</script>";
+                $_SESSION['flash'] = 'Game Deleted Successfully!';
             } else {
-                echo "<p style='color:red;'>Query error: " . mysqli_error($conn) . "</p>";
+                $_SESSION['flash'] = 'Error deleting game.';
             }
+
+            $delStmt->close();
         }
-    header("Location: index.php?page=game");
-    exit;
+
+        $stmt->close();
+        header("Location: index.php?page=game");
+        exit;
+    } else {
+        $_SESSION['flash'] = 'Invalid game selected.';
+        header("Location: index.php?page=game");
+        exit;
     }
 }
 
@@ -41,8 +56,15 @@ while ($item = mysqli_fetch_assoc($result)) {
 ?>
 
 <main class="bg-color3 container-fluid px-0 d-flex align-items-center justify-content-center">
-    <section class="bg-color2 container my-5 mx-3 text-center text-white d-flex flex-column" style="min-height: 50vh;">
+    <section class="bg-color1 container my-5 mx-3 text-center text-white d-flex flex-column" style="min-height: 50vh;">
             <h1 class="font2 display-5 mt-5 mx-auto mb-4">Supported Games</h1>
+
+            <?php if (!empty($_SESSION['flash'])): ?>
+                <script>
+                    alert('<?= htmlspecialchars($_SESSION['flash']) ?>');
+                </script>
+                <?php unset($_SESSION['flash']); ?>
+            <?php endif; ?>
 
             <?php            
             if (isset($_SESSION['admin']) && $_SESSION['admin'] === true):
@@ -79,7 +101,8 @@ while ($item = mysqli_fetch_assoc($result)) {
                                 </select>
                             </div>
                             <div  class="modal-footer">
-                                <input type="submit" name="delete" value="Delete" class="btn btn-danger">
+                                <input type="submit" name="delete" value="Delete" class="btn btn-danger"
+                                onclick="return confirm('Are you sure you want to delete this game? This cannot be undone.');">
                             </div>
                         </div>
                     </div>
@@ -96,12 +119,11 @@ while ($item = mysqli_fetch_assoc($result)) {
                     foreach($rows as $row) {
                         echo "<div class='col-lg-4 col-sm-6 col-12 mt-0 text-center mb-4'>";
                         echo "<a href='index.php?page=game/read&id=" .$row["id"]. "' class='text-decoration-none text-white justify-content-center mx-auto'>";
-                        echo "<img src='".BASE_URL."/uploads/" .$row["game_icon"]. "' alt='(".$row["game_name"]." icon)' class='custom-img-size rounded-2 d-block p-0 mx-auto'>";
-                        echo "<p class='fs-5 font1 mb-0'>".$row["game_name"]."</p></a></div>";
+                        echo "<img src='".BASE_URL."/uploads/game/" .$row["game_icon"]. "' alt='(".$row["game_name"]." icon)' class='custom-img-size rounded-2 d-block p-0 mx-auto'>";
+                        echo "<p class='fs-5 font1 mb-0'>". htmlspecialchars($row["game_name"]) ."</p></a></div>";
                     }
                 } else {
-                    echo "<div class='bg-red z-3'>";
-                    echo "Belum ada game</div>";
+                    echo "<div class='alert alert-warning'>No games available yet.</div>";
                 }
                 ?>
             </div>
