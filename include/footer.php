@@ -20,9 +20,9 @@
         <section class="col-12 col-md-3">
             <p class="fs-l text-white font1 ">Pages</p>
             <ul class="list-unstyled">
-                <li><a href="#" class="text-white text-decoration-none font1">Home</a></li>
-                <li><a href="#" class="text-white text-decoration-none font1">Game</a></li>
-                <li><a href="#" class="text-white text-decoration-none font1">Blog</a></li>
+                <li><a href="index.php?page=home" class="text-white text-decoration-none font1">Home</a></li>
+                <li><a href="index.php?page=game" class="text-white text-decoration-none font1">Game</a></li>
+                <li><a href="index.php?page=blog" class="text-white text-decoration-none font1">Blog</a></li>
             </ul>
         </section>
         <section class="col-12 col-md-3">

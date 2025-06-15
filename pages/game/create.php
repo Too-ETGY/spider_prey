@@ -76,7 +76,7 @@ if (isset($_POST['submit']) || isset($_POST['submit_redirect'])) {
                 if ($result) {
                     if (isset($_POST['submit_redirect'])) {
                         $last_id = mysqli_insert_id($conn);
-                        echo "<script>alert('Game Added!'); window.location.href = 'index.php?page=categories/edit&id=".$last_id."';</script>";
+                        echo "<script>alert('Game Added!'); window.location.href = 'index.php?page=categories&id=".$last_id."';</script>";
                     } else {
                         echo "<script>alert('Added Game!'); window.location.href = 'index.php?page=game';</script>";
                     }

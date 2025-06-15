@@ -221,42 +221,46 @@ include_once(__DIR__ . '/../include/navbar_home.php');
     <section class="container-fluid py-4 d-flex flex-column align-items-center">
     <div class="container-md text-start" style="max-width: 80rem;">
         <h1 class="text-white font2 display-7">FAQ</h1>
-        <div class="row">
-            <div class="accordion" id="accordionExample">
+        <div class="row g-4">
+            <div class="accordion" id="accordionExample1">
                 <div class="accordion-item show">
                     <h2 class="accordion-header" id="headingOne">
-                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    <button class="accordion-button fs-5 btn-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
                         Is Spider's Prey free to use?
                     </button>
                     </h2>
-                    <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                    <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample1">
                     <div class="accordion-body">
                         Yes! All of our guides, tier lists, and character breakdowns are completely free to access.
                     </div>
                     </div>
                 </div>
+            </div>
+            <div class="accordion" id="accordionExample2">
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="headingTwo">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                        <button class="accordion-button fs-5 btn-light collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
                             How often do you update the character tier lists?
                         </button>
                     </h2>
-                    <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                    <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample2">
                         <div class="accordion-body">
                             We update our tier lists and recommendations whenever new characters or balance patches are released. We also provide you guys with the up-to-date news about gacha gaming.
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="accordion" id="accordionExample3">
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="headingThree">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                        Which gacha games do you cover?
-                    </button>
+                        <button class="accordion-button fs-5 btn-light collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                            Which gacha games do you cover?
+                        </button>
                     </h2>
-                    <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
-                    <div class="accordion-body">
-                        We currently cover Honkai: Star Rail, Genshin Impact, and Wuthering Waves, with plans to expand into other popular gacha games in the future.
-                    </div>
+                    <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample3">
+                        <div class="accordion-body">
+                            We currently cover Honkai: Star Rail, Genshin Impact, and Wuthering Waves, with plans to expand into other popular gacha games in the future.
+                        </div>
                     </div>
                 </div>
             </div>

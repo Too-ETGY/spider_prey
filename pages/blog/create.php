@@ -25,6 +25,9 @@ if (isset($_POST['Add'])) {
     if (empty($title)) {
         $errors[] = "Title is required.";
     }
+    if (empty($desc)) {
+        $errors[] = "Description is required.";
+    }
 
     $filename = $_FILES["icon"]["name"] ?? '';
     $tmpName = $_FILES["icon"]["tmp_name"] ?? '';

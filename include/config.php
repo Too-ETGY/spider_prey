@@ -11,22 +11,6 @@ define('BASE_URL', 'http://localhost/final_project');
 // Default timezone (can be adjusted)
 date_default_timezone_set('Asia/Jakarta');
 
-// Start session (only if you’ll be using login/session features)
-// if (session_status() == PHP_SESSION_NONE) {
-//     session_start();
-// }
-
-// function isLoggedIn() {
-//     session_start();
-//     return isset($_SESSION['user_id']);
-// }
-
-// Fungsi untuk redirect jika belum login
-// if (!isset($_SESSION['admin']) || $_SESSION['admin'] !== true) {
-//     header("Location: index.php?page=login");
-//     exit;
-// }
-
 // Membuat koneksi
 $conn = mysqli_connect($host, $username, $password, $database);
 // Cek koneksi
@@ -44,4 +28,17 @@ function time_elapsed_string($datetime) {
     if ($diff->i > 0) return $diff->i . " minute" . ($diff->i > 1 ? "s" : "") . " ago";
 
     return "just now";
+}
+
+function getLink($gId, $s){
+    if($gId == null || $s == null ){
+        if($gId != null){
+            return "?page=blog&id=$gId";
+        }
+        if($s != null){
+            return "?page=blog&s=$s";
+        }
+        return "?page=blog";
+    }
+    return "?page=blog&id=$gId&s=$s";
 }

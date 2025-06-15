@@ -27,7 +27,7 @@ $current_img = $row['game_icon'];
 <main class="container">
 <div class="container-md bg-color2 p-4 my-5" style="max-width: 800px;">
     <h1 class="text-white font2 display-6">Edit Game</h1>
-    <a href="index.php?page=categories/edit&id=<?=$id?>" class="btn btn-primary">Add a category</a>
+    <a href="index.php?page=categories&id=<?=$id?>" class="btn btn-primary">Add a category</a>
 
 <?php
 // if (isset($_POST['update']) || isset($_POST['update_redirect'])) {
@@ -96,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['update']) || isset($
 
         if ($result) {
             if (isset($_POST['update_redirect'])) {
-                echo "<script>alert('Game Updated!'); window.location.href = 'index.php?page=categories/edit&id=".$id."';</script>";
+                echo "<script>alert('Game Updated!'); window.location.href = 'index.php?page=categories&id=".$id."';</script>";
             } else {
                 echo "<script>alert('Game Updated!'); window.location.href = 'index.php?page=game/read&id=".$id."';</script>";
             }

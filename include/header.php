@@ -1,7 +1,3 @@
-<?php
-// include_once($_SERVER['DOCUMENT_ROOT'] . '/spiders-prey/config.php');
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>

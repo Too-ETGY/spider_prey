@@ -14,7 +14,7 @@ if ($id <= 0) {
     exit;
 }
 
-$result = mysqli_query($conn, "SELECT * FROM view_blog_with_game_name WHERE id = $id");
+$result = mysqli_query($conn, "SELECT * FROM blog_with_game WHERE id = $id");
 if(mysqli_num_rows($result) == 0) {
     header("Location: index.php?page=blog/read");
     exit();
@@ -38,6 +38,9 @@ if (isset($_POST['update'])) {
     // === Text validations ===
     if (empty($title)) {
         $errors[] = "Title is required.";
+    }
+    if (empty($desc)) {
+        $errors[] = "Description is required.";
     }
 
     $newfilename = $current_img;
@@ -92,7 +95,7 @@ if (isset($_POST['update'])) {
         $result = $stmt->execute();
 
         if ($result) {
-            echo "<script>alert('Game Updated!'); window.location.href = 'index.php?page=blog/read&id=".$id."';</script>";
+            echo "<script>alert('Blog Updated!'); window.location.href = 'index.php?page=blog/read&id=".$id."';</script>";
         } else {
             echo "<p style='color:red;'>Query error: " . $stmt->error . "</p>";
         }

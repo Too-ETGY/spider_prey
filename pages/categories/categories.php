@@ -9,7 +9,11 @@ if (!isset($_SESSION['admin']) || $_SESSION['admin'] !== true) {
 }
 
 $game_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-$game = mysqli_fetch_assoc(mysqli_query($conn, "SELECT game_name FROM game_table WHERE id = $game_id"));
+$stmt = $conn->prepare("SELECT game_name FROM game_table WHERE id = ?");
+$stmt->bind_param("i", $game_id);
+$stmt->execute();
+$game = $stmt->get_result()->fetch_assoc();
+$stmt->close();
 
 ?>
 
@@ -41,9 +45,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->bind_param("is", $game_id, $catg_name);
             $stmt->execute();
             $stmt->close();
+
+            header("Location: index.php?page=categories&id=" . $game_id);
+            exit;
+
         } else {
             foreach ($errors as $error) {
-                echo "<script>alert('$error');</script>";
+                $_SESSION['flash'] = $error;
             }
         }
     }
@@ -78,25 +86,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 if (empty($errors)) {
-                    // ✅ Perform UPDATE, not INSERT
+                    // Perform UPDATE, not INSERT
                     $updateStmt = $conn->prepare("UPDATE category_table SET category_name = ? WHERE id = ?");
                     $updateStmt->bind_param("si", $catg_name, $id);
                     $updateStmt->execute();
                     $updateStmt->close();
 
-                    $_SESSION['flash'] = 'Category updated successfully.';
+                    // $_SESSION['flash'] = 'Category updated successfully.';
                 } else {
                     foreach ($errors as $error) {
-                        echo "<script>alert('$error');</script>";
+                        $_SESSION['flash'] = $error;
                     }
                 }
             }
             $stmt->close();
-            header("Location: index.php?page=categories/edit&id=" . $game_id);
+            header("Location: index.php?page=categories&id=" . $game_id);
             exit;
         } else {
             $_SESSION['flash'] = 'Invalid category selected.';
-            header("Location: index.php?page=categories/edit&id=" . $game_id);
+            header("Location: index.php?page=categories&id=" . $game_id);
             exit;
         }
     }
@@ -115,16 +123,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $delStmt->bind_param("i", $id);
                 $deleteSuccess = $delStmt->execute();
 
-                $_SESSION['flash'] = $deleteSuccess ? 'Category successfully deleted!' : 'Error deleting category.';
+                // $_SESSION['flash'] = $deleteSuccess ? 'Category successfully deleted!' : 'Error deleting category.';
                 $delStmt->close();
+            } else{
+                $_SESSION['flash'] = 'Error deleting category.';
             }
 
             $stmt->close();
-            header("Location: index.php?page=categories/edit&id=" . $game_id);
+            header("Location: index.php?page=categories&id=" . $game_id);
             exit;
         } else {
             $_SESSION['flash'] = 'Invalid category selected.';
-            header("Location: index.php?page=categories/edit&id=" . $game_id);
+            header("Location: index.php?page=categories&id=" . $game_id);
             exit;
         }
     }
@@ -134,16 +144,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $categories_result = mysqli_query($conn, "SELECT * FROM category_table WHERE game_id = $game_id");
 ?>
 
+<!-- Alert -->
+<?php while (!empty($_SESSION['flash'])): ?>
+    <div class="alert alert-danger"><?= $_SESSION['flash'] ?></div>
+    <?php unset($_SESSION['flash']); ?>
+<?php endwhile; ?>
+
+
 <main class="container">
     <div class="container-md bg-color2 px-5 my-5 row row-cols-1">
-        <h1 class="text-white my-4 font2 display-6 p-0"><?= htmlspecialchars($game['game_name']) ?> - Character Filter</h1>
-
-        <!-- <?php if (!empty($_SESSION['flash'])): ?>
-            <script>
-                alert('<?= htmlspecialchars($_SESSION['flash']) ?>');
-            </script>
-            <?php unset($_SESSION['flash']); ?>
-        <?php endif; ?> -->
+        <h1 class="text-white my-4 font2 display-6 p-0"><?= htmlspecialchars($game['game_name']) ?> - Character Type</h1>
 
         <form action="" method="post" class="text-white font1 p-0">
             <div class="input-group my-3 align-items-center">
@@ -169,8 +179,10 @@ $categories_result = mysqli_query($conn, "SELECT * FROM category_table WHERE gam
                         echo '<th scope="row">' . $no++ . '</th>';
                         echo '<td id="column_'.$row['id'].'">' . htmlspecialchars($row['category_name']) . '</td>';
                         echo 
-                        '<td class="d-flex align-items-center">
-                            <button onclick="edit('.$row['id'].')" class="btn btn-warning text-white">Edit</button>
+                        '
+                        <td class="d-flex align-items-center">
+                            <a href="index.php?page=categories_value&id='.$row['id'].'" class="btn btn-info text-white">Go</a>
+                            <button onclick="edit('.$row['id'].')" class="btn btn-warning text-white ms-3">Edit</button>
                             <form action="" method="post">
                                 <input type="hidden" name="id" value="'.$row['id'].'">
                                 <input type="submit" value="Delete" name="delete" class="btn btn-danger ms-3 rounded">
@@ -198,64 +210,27 @@ $categories_result = mysqli_query($conn, "SELECT * FROM category_table WHERE gam
     <input type="hidden" name="edit" value="edit">
 </form>
 
-<!-- Old -->
-<!-- <script>
-function edit(id) {
-    const column = document.getElementById("column_" + id);
-    const originalText = column.innerText;
-
-    // Create an input field
-    const input = document.createElement("input");
-    input.type = "text";
-    input.name = "catg_name";
-    input.value = originalText;
-    input.className = "form-control";
-
-    // Clear current content and add input field
-    column.innerHTML = '';
-    column.appendChild(input);
-
-    // Create a Save button
-    const saveBtn = document.createElement("button");
-    saveBtn.textContent = "Save";
-    saveBtn.className = "btn btn-success btn-sm ms-2";
-
-    // Create Cancel button
-    const cancelBtn = document.createElement("button");
-    cancelBtn.textContent = "Cancel";
-    cancelBtn.className = "btn btn-secondary btn-sm ms-2";
-
-    column.appendChild(saveBtn);
-    column.appendChild(cancelBtn);
-
-    // On Save, submit hidden form
-    saveBtn.onclick = function() {
-        const form = document.getElementById("put_form");
-        form.querySelector('input[name="id"]').value = id;
-        form.querySelector('input[name="catg_name"]').value = input.value;
-        form.submit();
-    };
-
-    // On Cancel, revert text
-    cancelBtn.onclick = function() {
-        column.innerHTML = originalText;
-    };
-}
-</script> -->
-
-<!-- New -->
 <script>
+    let currentEditing = null;
+    let originalContent = "";
+
     function edit(id) {
+        // Cancel previous edit if active
+        if (currentEditing !== null) {
+            cancelEdit(currentEditing, originalContent);
+        }
+
         const column = document.getElementById("column_" + id);
+        originalContent = column.innerHTML;
+        currentEditing = id;
 
-        // Get the current name value
-        const currentValue = column.textContent;
+        const currentValue = column.textContent.trim();
 
-        // Create form elements
-        const form = document.createElement("form");
-        form.method = "POST";
-        form.className = "d-flex align-items-center gap-2"; // Bootstrap flex row with spacing
+        // Create form container
+        const form = document.createElement("div");
+        form.className = "d-flex align-items-center gap-2";
 
+        // Input field
         const input = document.createElement("input");
         input.type = "text";
         input.name = "catg_name";
@@ -263,32 +238,50 @@ function edit(id) {
         input.className = "form-control";
         input.required = true;
 
+        // Hidden fields
         const hiddenId = document.createElement("input");
         hiddenId.type = "hidden";
         hiddenId.name = "id";
         hiddenId.value = id;
 
-        const submit = document.createElement("button");
-        submit.type = "submit";
-        submit.name = "edit";
-        submit.className = "btn btn-success";
-        submit.textContent = "Save";
+        const hiddenEdit = document.createElement("input");
+        hiddenEdit.type = "hidden";
+        hiddenEdit.name = "edit";
+        hiddenEdit.value = "edit";
 
-        const cancel = document.createElement("button");
-        cancel.type = "button";
-        cancel.className = "btn btn-secondary";
-        cancel.textContent = "Cancel";
-        cancel.onclick = () => {
-            column.innerHTML = currentValue; // Restore original text
-        };
+        // Save button
+        const saveBtn = document.createElement("button");
+        saveBtn.type = "submit";
+        saveBtn.className = "btn btn-success btn-sm";
+        saveBtn.textContent = "Save";
 
-        // Clear and insert form into column
+        // Cancel button
+        const cancelBtn = document.createElement("button");
+        cancelBtn.type = "button";
+        cancelBtn.className = "btn btn-secondary btn-sm";
+        cancelBtn.textContent = "Cancel";
+        cancelBtn.onclick = () => cancelEdit(id, originalContent);
+
+        // Form element
+        const realForm = document.createElement("form");
+        realForm.method = "POST";
+        realForm.className = "d-flex align-items-center gap-2";
+
+        realForm.appendChild(input);
+        realForm.appendChild(hiddenId);
+        realForm.appendChild(hiddenEdit);
+        realForm.appendChild(saveBtn);
+        realForm.appendChild(cancelBtn);
+
         column.innerHTML = "";
-        form.appendChild(input);
-        form.appendChild(hiddenId);
-        form.appendChild(submit);
-        form.appendChild(cancel);
-        column.appendChild(form);
+        column.appendChild(realForm);
+    }
+
+    function cancelEdit(id, content) {
+        const col = document.getElementById("column_" + id);
+        col.innerHTML = content;
+        currentEditing = null;
+        originalContent = "";
     }
 </script>
 
