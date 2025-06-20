@@ -16,4 +16,4 @@
      <link rel="stylesheet" href="<?= BASE_URL?>/asset/custom.css">
 
 </head>
-<body class="bg-color3 d-flex flex-column" style="min-height:100vh;">
+<body class="bg-color3">

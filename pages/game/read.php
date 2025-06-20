@@ -75,6 +75,7 @@ include_once(__DIR__ . '/../../include/navbar_game_read.php');
                 margin: 5px;
                 border-radius: 5px;
                 transition: 0.2s;
+                position: relative;
         }
 
         .filter-icon.active {
@@ -82,12 +83,18 @@ include_once(__DIR__ . '/../../include/navbar_game_read.php');
         }
 
         .custom-height{
-                height: 9.5rem;
+                height: 8rem;
+        }
+
+        @media (max-width:768px) {
+                .custom-height{                
+                        height: 5rem;
+                }
         }
 </style>
 
 <div class="container-fluid px-0 d-flex align-items-center justify-content-center">
-        <main class="bg-color1 container my-5 mx-3 text-center text-white d-flex flex-column" style="min-height: 50vh;">
+        <main class="bg-color1 container my-5 mx-3 text-center text-white d-flex flex-column">
                 <section class="d-flex flex-column justify-content-start mt-3 mx-1">
                         <div class="d-flex align-items-center justify-content-between w-100">
                                 <div class="d-flex align-items-center">
@@ -124,7 +131,7 @@ include_once(__DIR__ . '/../../include/navbar_game_read.php');
                         $total = count($categories);
                         $no = 0;
 
-                        foreach ($categories as $catg_row) {
+                        foreach ($categories as $catg_row) :
                                 $catg_id = $catg_row['id'];
                                 echo "<div class='d-inline-block mx-auto'>";
 
@@ -132,30 +139,28 @@ include_once(__DIR__ . '/../../include/navbar_game_read.php');
                                 $catg_value_run = mysqli_query($conn, 
                                         "SELECT * FROM category_value_table WHERE category_id = $catg_id ORDER BY catg_value_name ASC");
 
-                                while ($value_row = mysqli_fetch_assoc($catg_value_run)) {
-                                        echo '
-                                        <img 
-                                        src="' . BASE_URL . '/uploads/category/' . $value_row['catg_value_icon'] . '" 
-                                        alt="' . htmlspecialchars($value_row['catg_value_name']) . '" 
-                                        data-category-id="'.$catg_id.'"
-                                        data-category-name="'.$catg_row['category_name'].'" 
-                                        data-value-name="'.$value_row['catg_value_name'].'" 
-                                        data-value-id="'.$value_row['id'].'"
-                                        class="filter-icon">';
-                                }
+                                while ($value_row = mysqli_fetch_assoc($catg_value_run)) :?>
+                                        <img src="<?= BASE_URL?>/uploads/category/<?=$value_row['catg_value_icon']?>" 
+                                        alt="<?= htmlspecialchars($value_row['catg_value_name'])?>" 
+                                        data-category-id="<?= $catg_id?>"
+                                        data-category-name="<?= $catg_row['category_name']?>" 
+                                        data-value-name="<?= $value_row['catg_value_name']?>" 
+                                        data-value-id="<?= $value_row['id']?>"
+                                        class="filter-icon">
+                                <?php endwhile;
 
                                 echo "</div>";
 
                                 $no++;
-                                if ($no < $total) {
+                                if ($no < $total) :
                                         echo '<span class="mx-1">|</span>';
-                                }
-                        }
+                                endif;
+                        endforeach;
                         ?>
                 </section>
 
                 <section class="bg-color4 mb-4 rounded-1">
-                        <div id="selected-output" class="row justify-content-start"></div>
+                        <div id="selected-output" class="row justify-content-start p-3"></div>
                 </section>
         </main>
 </div>
@@ -178,15 +183,16 @@ function fetchCharacters(filterString = "") {
                         if (data.length === 0) {
                                 html = "<p class='text-white'>No characters matched.</p>";
                         } else {data.forEach(char => {
-                                // for(i=0; i<15; i++){
+                                // for(i=0;i<=15;i++){
                                 html += 
-                                `<div class="col-6 col-sm-4 col-md-3 col-lg-2 p-2">
-                                <div class="position-relative text-white rounded-2 p-2 h-100">
-                                        <a class="text-decoration-none text-white d-block text-center" href="?page=character&id=${char.char_id}">
-                                        <img class="border rounded-3 object-fit-contain w-auto custom-height""
+                                `<div class="col-4 col-sm-3 col-lg-2">
+                                <div class="position-relative text-white text-center rounded-2 p-2 h-100">
+                                        <a class="text-decoration-none text-white text-center d-flex flex-column justify-content-center align-items-center" 
+                                        href="?page=character&id=${char.char_id}">
+                                        <img class="border rounded-3  w-auto custom-height"
                                                 src="<?= BASE_URL ?>/uploads/char/${char.char_icon}" 
                                                 alt="${char.char_name}">
-                                        <p class="fs-6 font1 mt-2 mb-0">
+                                        <p class="fs-6 font1 my-0 mx-auto">
                                                 ${char.char_name} <br>
                                                 <span class="fs-s">${char.char_speciality ?? ''}</span>
                                         </p>

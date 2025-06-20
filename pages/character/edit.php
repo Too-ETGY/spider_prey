@@ -166,9 +166,9 @@ if (isset($_POST['edit'])) {
                 $selectedTier = $char_data['tier_id'] ?? '';
                 $selectedTierName = $char_data['tier_name'] != null ? htmlspecialchars($char_data['tier_name']) :'(No Rank)';?>
                 <select name="tier_id" class="form-select border border-dark rounded-1 
-                    <?=$selectedTier!=''?'bg-warning-subtle':''?>" required>
+                    <?=$selectedTier!=''?'bg-warning-subtle':''?>">
                     <?php
-                    $get_tier = mysqli_query($conn, "SELECT id, tier_name FROM tier_table");
+                    $get_tier = mysqli_query($conn, "SELECT id, tier_name FROM tier_table WHERE game_id = $game_id ORDER BY tier_order");
                     if (mysqli_num_rows($get_tier) > 0) {
 
                         echo '<option value="' . $selectedTier . '" selected class="fw-bolder">' . $selectedTierName . '</option>';

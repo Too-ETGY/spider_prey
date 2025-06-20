@@ -62,7 +62,7 @@ $color_bg = $char_row['color_bg'] != null ? htmlspecialchars($char_row['color_bg
                 class="w-auto border rounded mx-4 mb-4" style="height: 15rem;">
             </div>
             <div class="mx-md-4 mb-4 d-flex flex-column justify-content-center justify-content-md-start">
-                <div class="mx-md-0 mx-auto d-flex align-items-center justify-content-start w-100 mb-4">
+                <div class="mx-md-0 mx-auto d-flex align-items-center justify-content-start mb-4">
                     <h1 class="font2 display-6 my-0"><?= htmlspecialchars($char_name)?></h1>
                     <?php if (isset($_SESSION['admin']) && $_SESSION['admin'] === true):?>
                         <a href='index.php?page=character/edit&id=<?=$char_id?>' class='btn btn-warning text-white my-auto ms-2'>Edit</a>
@@ -72,7 +72,7 @@ $color_bg = $char_row['color_bg'] != null ? htmlspecialchars($char_row['color_bg
                 <?php
                 $categoryQuery = mysqli_query($conn, "SELECT * FROM character_with_categories WHERE char_id = $char_id"); 
                 if(mysqli_num_rows($categoryQuery)>0):?>
-                <div class="d-flex flex-wrap align-items-center mx-md-0 mx-auto gap-4 w-100 mb-4">
+                <div class="d-flex flex-wrap align-items-center mx-md-0 mx-auto gap-4 mb-4">
                     <?php while($categories_result = mysqli_fetch_assoc($categoryQuery)):?>
                         <div class="bg-color4 d-flex align-items-center justify-content-center font1 fs-6 rounded px-1">
                             <img src="<?=BASE_URL?>/uploads/category/<?=$categories_result['catg_value_icon']?>" style="heigh:24px;width:24px;" alt="">
@@ -82,7 +82,7 @@ $color_bg = $char_row['color_bg'] != null ? htmlspecialchars($char_row['color_bg
                 </div> 
                 <?php endif;?>
 
-                <div class="w-100 d-flex flex-row flex-wrap align-items-start gap-4">
+                <div class="d-flex flex-row flex-wrap align-items-start gap-4">
                     <div class="align-items-start justify-content-start">
                         <p class="font1 fs-l mb-0 text-start">Max Level Stats</p>
                         <div class="d-flex flex-column align-items-stretch">
@@ -121,10 +121,12 @@ $color_bg = $char_row['color_bg'] != null ? htmlspecialchars($char_row['color_bg
                     </div>
                 </div>
             </div>
-            <div class="d-flex justify-content-center me-md-4 mb-4">
-                <div class="rounded d-flex flex-column justify-content-center align-items-center" style="background-color:<?=$color_bg?>;height:8.5rem;width:8rem;">
-                    <p class="font3 p-2 display-5 mb-0"><?=$tier_name?></p>
-                    <span class="font1 fs-6 text-center mx-3"><?=$char_speciality?></span>
+            <div class="d-flex justify-content-center align-items-center m-0 mx-lg-4 mb-lg-4">
+                <div class="rounded d-flex flex-column justify-content-center align-items-center w-100 mx-auto" style="background-color:<?=$color_bg?>;">
+                    <p class="font3 display-5 m-4 mb-0"><?=$tier_name?></p>
+                    <p class="font1 fs-6 text-wrap text-break m-4 mt-0" style="max-width:100%; white-space:normal;">
+                        (<?= preg_replace('/,\s*/', ', <br>', htmlspecialchars_decode(htmlspecialchars($char_row['char_speciality']))) ?>)
+                    </p>
                 </div>
             </div>
         </div>
@@ -157,59 +159,92 @@ $color_bg = $char_row['color_bg'] != null ? htmlspecialchars($char_row['color_bg
             }
         }?>
 
-        <?php if($skill!=null):?>
-            <div class="d-flex flex-column align-items-start justify-content-start mb-4 mx-4">
-                <div class="d-flex justify-content-between align-items-center w-100">
-                    <h1 class="font2 display-6 my-0 text-starts"><?=$skill?></h1>
-                    <?php if (isset($_SESSION['admin']) && $_SESSION['admin'] === true):?>
-                        <div class=" d-flex justify-content-end">
-                            <a href="index.php?page=skill/create&id=<?=$char_id?>" class="btn btn-success">Add Skill</a>
-                        </div>
-                    <?php endif;?>
+        <?php if ($skill != null): ?>
+        <div class="d-flex flex-column align-items-start justify-content-start mb-4 mx-4">
+            <div class="d-flex justify-content-between align-items-center w-100 mb-2">
+                <h1 class="font2 display-6 my-0 text-start"><?= htmlspecialchars($skill) ?></h1>
+                <?php if (isset($_SESSION['admin']) && $_SESSION['admin'] === true): ?>
+                <div class="d-flex justify-content-end">
+                    <a href="index.php?page=skill/create&id=<?= $char_id ?>" class="btn btn-success">Add Skill</a>
                 </div>
-                <?php 
-                $getSkill = mysqli_query($conn, "SELECT * FROM skill_table WHERE char_id = $char_id ORDER BY skill_order");
-                if(mysqli_num_rows($getSkill)>0):?>
-                <div class="d-flex dlex-column">
-                    <div class="row">
-                        <div class="col-2">p</div>
-                        <div class="col-10">p</div>
-                    </div>
-                </div>
-                <?php else:?>
-                <div class="d-flex dlex-column">
-                    <p>No Data Provided</p>
-                </div>
-                <?php endif;?>
+                <?php endif; ?>
             </div>
-        <?php endif;?>
 
-        <?php if($dupes!=null):?>
-            <div class="d-flex flex-column align-items-start justify-content-start mb-4 mx-4">
-                <div class="d-flex justify-content-between align-items-center w-100">
-                    <h1 class="font2 display-6 my-0 text-starts"><?=$dupes?></h1>
-                    <?php if (isset($_SESSION['admin']) && $_SESSION['admin'] === true):?>
-                        <div class=" d-flex justify-content-end">
-                            <a href="index.php?page=dupes/create&id=<?=$char_id?>" class="btn btn-success">Add Supes</a>
+            <?php 
+            $getSkill = mysqli_query($conn, "SELECT * FROM skill_table WHERE char_id = $char_id ORDER BY skill_order");
+            if (mysqli_num_rows($getSkill) > 0): ?>
+            <div class="d-flex flex-column gap-3 w-100">
+                <?php while ($skill = mysqli_fetch_assoc($getSkill)): ?>
+                <div class="row bg-color4 text-white rounded-2 p-3 g-0" style="--bs-gutter-x: 0;">
+                    <div class="col-md-2 col-12 text-center mb-3 mb-md-0 d-flex flex-column align-items-center justify-content-start">
+                        <img src="<?= BASE_URL ?>/uploads/skill/<?= htmlspecialchars($skill['skill_icon']) ?>" 
+                            alt="Skill Icon" class="img-fluid mb-2" style="max-height: 5rem;">
+                        <span class="fs-6 font1 fw-bold"><?= htmlspecialchars($skill['skill_type']) ?></span>
+
+                        <?php if (isset($_SESSION['admin']) && $_SESSION['admin'] === true): ?>
+                        <div class="mt-2">
+                            <a href="index.php?page=skill/edit&id=<?= $char_id ?>&order=<?=$skill['skill_order']?>" class="btn btn-warning btn-sm">Edit</a>
+                            <a href="index.php?page=skill/delete&id=<?= $char_id ?>&order=<?=$skill['skill_order']?>" class="btn btn-danger btn-sm">Delete</a>
                         </div>
-                    <?php endif;?>
-                </div>
-                <?php 
-                $getDupes = mysqli_query($conn, "SELECT * FROM dupes_table WHERE char_id = $char_id ORDER BY dupes_order");
-                if(mysqli_num_rows($getDupes)>0):?>
-                <div class="d-flex dlex-column">
-                    <div class="row">
-                        <div class="col-2">p</div>
-                        <div class="col-10">p</div>
+                        <?php endif; ?>
+
+                    </div>
+                    <div class="col-md-10 col-12 text-md-start text-center">
+                        <h5 class="fs-5 font1 fw-bold mb-1 text-md-start text-center"><?= htmlspecialchars($skill['skill_name']) ?></h5>
+                        <p class="fs-6 font1 mb-0 text-md-start text-center"><?= $skill['skill_desc'] ?></p>
                     </div>
                 </div>
-                <?php else:?>
-                <div class="d-flex dlex-column">
-                    <p>No Data Provided</p>
-                </div>
-                <?php endif;?>
+                <?php endwhile; ?>
             </div>
-        <?php endif;?>
+            <?php else: ?>
+            <div class="alert mt-3">No Skills Available</div>
+            <?php endif; ?>
+        </div>
+        <?php endif; ?>
+
+        <?php if ($dupes != null): ?>
+        <div class="d-flex flex-column align-items-start justify-content-start mb-4 mx-4">
+            <div class="d-flex justify-content-between align-items-center w-100 mb-2">
+                <h1 class="font2 display-6 my-0 text-start"><?= htmlspecialchars($dupes) ?></h1>
+                <?php if (isset($_SESSION['admin']) && $_SESSION['admin'] === true): ?>
+                <div class="d-flex justify-content-end">
+                    <a href="index.php?page=dupes/create&id=<?= $char_id ?>" class="btn btn-success">Add Dupes</a>
+                </div>
+                <?php endif; ?>
+            </div>
+
+            <?php 
+            $getDupes = mysqli_query($conn, "SELECT * FROM dupes_table WHERE char_id = $char_id ORDER BY dupes_order");
+            if (mysqli_num_rows($getDupes) > 0): ?>
+            <div class="d-flex flex-column gap-3 w-100">
+                <?php while ($dupes = mysqli_fetch_assoc($getDupes)): ?>
+                <div class="row bg-color4 text-white rounded-2 p-3 g-0" style="--bs-gutter-x: 0;">
+                    <div class="col-md-2 col-12 text-center mb-3 mb-md-0 d-flex flex-column align-items-center justify-content-start">
+                        <img src="<?= BASE_URL ?>/uploads/dupes/<?= htmlspecialchars($dupes['dupes_icon']) ?>" 
+                            alt="Dupes Icon" class="img-fluid mb-2 rounded-circle bg-color3" style="max-height: 5rem;">
+                        <span class="fs-6 font1 fw-bold"><?= htmlspecialchars($dupes['dupes_type']) ?></span>
+
+                        <?php if (isset($_SESSION['admin']) && $_SESSION['admin'] === true): ?>
+                        <div class="mt-2">
+                            <a href="index.php?page=dupes/edit&id=<?= $char_id ?>&order=<?=$dupes['dupes_order']?>" class="btn btn-warning btn-sm">Edit</a>
+                            <a href="index.php?page=dupes/delete&id=<?= $char_id ?>&order=<?=$dupes['dupes_order']?>" class="btn btn-danger btn-sm">Delete</a>
+                        </div>
+                        <?php endif; ?>
+                        
+                    </div>
+                    <div class="col-md-10 col-12 text-md-start text-center">
+                        <h5 class="fs-5 font1 fw-bold mb-1 text-md-start text-center"><?= htmlspecialchars($dupes['dupes_name']) ?></h5>
+                        <p class="fs-6 font1 mb-0 text-md-start text-center"><?= $dupes['dupes_desc'] ?></p>
+                    </div>
+                </div>
+                <?php endwhile; ?>
+            </div>
+            <?php else: ?>
+            <div class="alert mt-3">No Dupes Available</div>
+            <?php endif; ?>
+        </div>
+        <?php endif; ?>
+
     </section>
 
 

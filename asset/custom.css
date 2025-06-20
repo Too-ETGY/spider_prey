@@ -38,6 +38,9 @@
     font-size: calc(1.375rem + 1.5vw);
 } */
 
+.fs-xs{
+    font-size: 0.5rem !important;
+}
 .fs-s{
     font-size: 0.75rem !important;
 }

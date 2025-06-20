@@ -27,19 +27,19 @@ include_once(__DIR__ . '/../../include/navbar_game_read.php');
 ?>
 
 <style>
-    .custom-width{
-        width:6rem;
+    .custom-height{
+        height:5rem;
     }
 
     @media max-width:768px {
-        .custom-width{
-            width:3rem;
+        .custom-height{
+            height:5rem;
         }
     }
 </style>
 
 <div class="container-fluid px-0 d-flex align-items-center justify-content-center">
-<main class="bg-color1 container my-5 mx-3 text-center text-white d-flex flex-column">
+<main class="bg-color1 container my-5 mx-3 text-center text-white d-flex flex-column" style="min-height:50vh;">
     <section class="d-flex flex-column justify-content-start mt-3 mx-1">
         <div class="d-flex align-items-center justify-content-between w-100">
             <div class="d-flex align-items-center">
@@ -79,7 +79,7 @@ include_once(__DIR__ . '/../../include/navbar_game_read.php');
         foreach ($tiers as $tier):
         ?>
         <div class="row  mb-3 align-items-stretch" style="min-height:10rem;">
-            <div class="col-4 col-sm-3 col-md-2 font3 p-2 display-5 rounded-start d-flex align-items-center justify-content-center"
+            <div class="col-4 col-sm-3 col-md-2 font3 p-2 display-6 rounded-start d-flex align-items-center justify-content-center"
                 style="background-color:<?php echo $tier['color_bg']; ?>;">
                 <?= $tier['tier_name'] ?>
             </div>
@@ -89,13 +89,15 @@ include_once(__DIR__ . '/../../include/navbar_game_read.php');
                 $tier_id = $tier['id'];
                 $charQuery = mysqli_query($conn, "SELECT * FROM tier_with_char WHERE game_id = $game_id AND tier_id = $tier_id");
                 while($char_row = mysqli_fetch_assoc($charQuery)):
+                    // for($i=0;$i<10;$i++):
                 ?>
                 <a class="m-3 text-decoration-none text-white" href="?page=character&id=<?=$char_row['char_id']?>">
-                    <img class="border border-2 rounded-3 h-auto custom-width"
+                    <img class="border border-2 rounded-3 w-auto custom-height"
                         src="<?= BASE_URL ?>/uploads/char/<?=$char_row['char_icon']?>" alt="<?=htmlspecialchars($char_row['char_name'])?>">
-                    <p class="fs-6 font1 mt-1 mb-0 text-center">
-                        <?=htmlspecialchars($char_row['char_name'])?> <br>
-                        <span class="fs-s">(<?=htmlspecialchars($char_row['char_speciality'])?>)</span>
+                    <p class="fs-6 font1 mb-0 text-center"><?=htmlspecialchars($char_row['char_name'])?></p>
+                    <!-- <p class="fs-s mb-0" style="max-width:100%;">(<?=htmlspecialchars($char_row['char_speciality'])?>)</p> -->
+                    <p class="mb-0 text-wrap text-break" style="font-size:0.7rem;max-width:100%; white-space:normal;">
+                        (<?= preg_replace('/,\s*/', ', <br>', htmlspecialchars_decode(htmlspecialchars($char_row['char_speciality']))) ?>)
                     </p>
                 </a>
                 <?php endwhile;?>
@@ -108,19 +110,19 @@ include_once(__DIR__ . '/../../include/navbar_game_read.php');
         if(mysqli_num_rows($charNull) > 0):
             ?>
             <div class="row  mb-3 align-items-stretch" style="min-height:10rem;">
-                <div class="col-2 font3 p-2 fs-5 rounded-start d-flex align-items-center justify-content-center text-danger text-wrap"
+                <div class="col-4 col-sm-3 col-md-2 font3 p-2 display-6 rounded-start d-flex align-items-center justify-content-center"
                     style="background-color:black;">
-                    Unranked
+                    ??
                 </div>
-                <div class="col-10 bg-color4 rounded-end d-flex flex-wrap justify-content-start align-items-start">
+                <div class="col-8 col-sm-9 col-md-10 bg-color4 rounded-end d-flex flex-wrap justify-content-start align-items-start">
                     <?php while($char_row = mysqli_fetch_assoc($charNull)):?>
                     <a class="m-3 text-decoration-none text-white" href="?page=character&id=<?=$char_row['char_id']?>">
-                        <img class="border border-2 rounded-3 h-auto custom-width"
-                            src="<?= BASE_URL ?>/uploads/char/<?=$char_row['char_icon']?>" 
-                            alt="<?=htmlspecialchars($char_row['char_name'])?>">
-                        <p class="fs-6 font1 mt-1 mb-0 text-center">
-                            <?=htmlspecialchars($char_row['char_name'])?> <br>
-                            <span class="fs-s">(<?=htmlspecialchars($char_row['char_speciality'])?>)</span>
+                        <img class="border border-2 rounded-3 w-auto custom-height"
+                            src="<?= BASE_URL ?>/uploads/char/<?=$char_row['char_icon']?>" alt="<?=htmlspecialchars($char_row['char_name'])?>">
+                        <p class="fs-6 font1 mb-0 text-center"><?=htmlspecialchars($char_row['char_name'])?></p>
+                        <!-- <p class="fs-s mb-0" style="max-width:100%;">(<?=htmlspecialchars($char_row['char_speciality'])?>)</p> -->
+                        <p class="mb-0 text-wrap text-break" style="font-size:0.7rem;max-width:100%; white-space:normal;">
+                            (<?= preg_replace('/,\s*/', ', <br>', htmlspecialchars_decode(htmlspecialchars($char_row['char_speciality']))) ?>)
                         </p>
                     </a>
                     <?php endwhile;?>
