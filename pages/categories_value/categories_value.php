@@ -12,26 +12,9 @@ $category_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $category = mysqli_fetch_assoc(mysqli_query($conn, "SELECT category_name, game_id FROM category_table WHERE id = $category_id"));
 $game = mysqli_fetch_assoc(mysqli_query($conn, "SELECT game_name FROM game_table WHERE id = " . $category['game_id']));
 
-// Handle image upload
-function uploadImage($file) {
-    $targetDir = __DIR__ . '/../../uploads/category/';
-    if (!is_dir($targetDir)) {
-        mkdir($targetDir, 0755, true);
-    }
-    $fileName = uniqid() . 'filter_' . basename($file["name"]);
-    $targetFile = $targetDir . $fileName;
-    $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
-
-    $valid = getimagesize($file["tmp_name"]);
-    if ($valid && in_array($imageFileType, ['png', 'jpg', 'jpeg', 'webp'])) {
-        if (move_uploaded_file($file["tmp_name"], $targetFile)) {
-            return "uploads/category/" . $fileName;
-        }
-    }
-    return null;
-}
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $targetDir = __DIR__ . "/../../uploads/category/";
+
     if (isset($_POST['add'])) {
         $name = trim($_POST["value_name"]);
         $errors = [];
@@ -40,10 +23,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = "Name is required.";
         }
 
-        $imagePath = isset($_FILES['icon']) ? uploadImage($_FILES['icon']) : null;
-        if (!$imagePath) {
-            $errors[] = "Valid image is required.";
-        }
+        [$imagePath, $uploadErrors] = uploadFile($_FILES["icon"], $targetDir, 'category_');
+        $errors = array_merge($errors, $uploadErrors ?? []);
 
         if (empty($errors)) {
             $stmt = $conn->prepare("INSERT INTO category_value_table (category_id, catg_value_name, catg_value_icon) VALUES (?, ?, ?)");
@@ -54,17 +35,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } 
     elseif (isset($_POST['edit'])) {
         $id = (int) $_POST['id'];
-
         $name = trim($_POST["value_name"]);
         $errors = [];
 
         if (empty($name)) {
             $errors[] = "Name is required.";
         }
-        $imagePath = isset($_FILES['icon']) && $_FILES['icon']['size'] > 0 ? uploadImage($_FILES['icon']) : null;
+        [$imagePath, $uploadErrors] = uploadFile($_FILES["icon"], $targetDir, 'category_');
+        $errors = array_merge($errors, $uploadErrors ?? []);
 
         if (empty($errors)) {
             if ($imagePath) {
+                // Delete old image
+                $stmt = $conn->prepare("SELECT catg_value_icon FROM category_value_table WHERE id = ?");
+                $stmt->bind_param("i", $id);
+                $stmt->execute();
+                $stmt->bind_result($oldIcon);
+                $stmt->fetch();
+                $stmt->close();
+
+                deleteFile($targetDir.$oldIcon);
+
                 $stmt = $conn->prepare("UPDATE category_value_table SET catg_value_name = ?, catg_value_icon = ? WHERE id = ?");
                 $stmt->bind_param("ssi", $name, $imagePath, $id);
             } else {
@@ -78,7 +69,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     elseif (isset($_POST['delete'])) {
         $id = (int) $_POST['id'];
 
-        // Get the filename to delete the image
         $stmt = $conn->prepare("SELECT catg_value_icon FROM category_value_table WHERE id = ?");
         $stmt->bind_param("i", $id);
         $stmt->execute();
@@ -86,12 +76,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->fetch();
         $stmt->close();
 
-        // Delete the image file from server
-        if ($icon && file_exists("uploads/category/" . $icon)) {
-            unlink("uploads/category/" . $icon);
-        }
+        deleteFile($targetDir.$icon);
 
-        // Delete the row from the database
         $stmt = $conn->prepare("DELETE FROM category_value_table WHERE id = ?");
         $stmt->bind_param("i", $id);
         $stmt->execute();
@@ -99,6 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $_SESSION['flash'] = "Category value deleted.";
     }
+
     header("Location: index.php?page=categories_value&id=$category_id");
     exit;
 }
@@ -111,15 +98,25 @@ $result = mysqli_query($conn, "SELECT * FROM category_value_table WHERE category
         <h1 class="text-white my-4 font2 display-6 p-0"><?= htmlspecialchars($game['game_name']) ?> 
         -> <?= htmlspecialchars($category['category_name']) ?></h1>
 
+        <?php if (!empty($_SESSION['flash'])): ?>
+            <div class="alert alert-success">
+                <?= htmlspecialchars($_SESSION['flash']) ?>
+            </div>
+            <?php unset($_SESSION['flash']); ?>
+        <?php endif; ?>
+
         <form action="" method="post" enctype="multipart/form-data" class="text-white font1 p-0">
-            <div class="input-group my-3 align-items-center gap-3">
+            <div class="input-group my-3 align-items-start gap-3">
                 <input type="file" name="icon" accept="image/*" class="form-control rounded" required>
-                <input type="text" name="value_name" class="form-control rounded" placeholder="Enter name" required>
+                <div class="form-floating mb-3">
+                    <input type="text" name="value_name" class="form-control rounded" id="floatingInput" placeholder="Enter name" required>
+                    <label for="floatingInput">Category name</label>
+                </div>
                 <button name="add" class="btn btn-success rounded">Submit</button>
             </div>
         </form>
 
-        <table class="table text-white">
+        <table class="table text-white table-bordered">
             <thead>
                 <tr>
                     <th>#</th>
@@ -134,10 +131,10 @@ $result = mysqli_query($conn, "SELECT * FROM category_value_table WHERE category
                 echo '<tr>';
                 echo '<td>' . $no++ . '</td>';
                 echo '<td id="column_'.$row['id'].'">
-                        <img src="'.BASE_URL.'/' .$row['catg_value_icon'] . '" class="border" style="width:40px;height:40px;object-fit:cover;"><br>
+                        <img src="'.BASE_URL.'/uploads/category/' .$row['catg_value_icon'] . '" class="border" style="width:40px;height:40px;object-fit:cover;"><br>
                         ' . htmlspecialchars($row['catg_value_name']) . '
-                      </td>';
-                echo '<td class="d-flex align-items-center">
+                    </td>';
+                echo '<td class="d-flex align-items-center border">
                         <button onclick="edit('.$row['id'].')" class="btn btn-warning text-white me-2">Edit</button>
                         <form method="post">
                             <input type="hidden" name="id" value="'.$row['id'].'">
@@ -151,7 +148,7 @@ $result = mysqli_query($conn, "SELECT * FROM category_value_table WHERE category
         </table>
 
         <div class="my-4 d-flex justify-content-end gap-3">
-            <a href="index.php?page=categories&id=<?= $category['game_id'] ?>" class="btn btn-secondary">Back</a>
+            <a href="index.php?page=categories&id=<?= $category['game_id'] ?>" class="btn btn-secondary">Previous</a>
             <a href="index.php?page=game/read&id=<?= $category['game_id'] ?>" class="btn btn-secondary">BACK</a>
         </div>
     </div>
@@ -168,7 +165,11 @@ function edit(id) {
     const column = document.getElementById("column_" + id);
     activeEditId = id;
     column.dataset.original = column.innerHTML;
-    const name = column.innerText.trim();
+    const brElem = column.querySelector("br");
+    let name = "";
+    if(brElem && brElem.nextSibling) {
+        name = brElem.nextSibling.textContent.trim();
+    }
 
     column.innerHTML = '';
     const form = document.createElement("form");
@@ -179,6 +180,7 @@ function edit(id) {
     const input = document.createElement("input");
     input.type = "text";
     input.name = "value_name";
+    input.required = true;
     input.value = name;
     input.className = "form-control";
 

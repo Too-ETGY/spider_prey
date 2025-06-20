@@ -23,11 +23,9 @@ if (isset($_POST['delete'])) {
             $deleteSuccess = $delStmt->execute();
 
             if ($deleteSuccess) {
-                // Delete the icon file from the server if it exists
                 $imagePath = __DIR__ . '/../../uploads/blog/' . $iconFile;
-                if (!empty($iconFile) && file_exists($imagePath)) {
-                    unlink($imagePath);
-                }
+                deleteFile($imagePath);
+                
                 $_SESSION['flash'] = 'BLog Successfully Deleted!';
             } else {
                 $_SESSION['flash'] = 'Error deleting game.';
@@ -81,14 +79,23 @@ if ($result) {
 mysqli_next_result($conn);
 $stmt->close();
 ?>
-  
+
+<style>
+    .text-limit {
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 5;
+                line-clamp: 5; 
+        -webkit-box-orient: vertical;
+    }
+</style>
+
 <div class="bg-color3 container-fluid px-0 d-flex align-items-center justify-content-center">
-        <div class="container my-5 mx-2 p-0 text-center text-white row align-items-start justify-content-between" style="min-height: 50vh;">
-            <main class="bg-color1 col-12 col-md-8">
+        <div class="container-lg my-5 mx-2 p-0 text-center text-white row align-items-start justify-content-between gap-4">
+            <main class="bg-color1 col-12 col-sm-7 col-md-8">
                 <div class="row row-cols row-cols-md-1 row-cols-lg-2 align-items-start text-start">  
 
-                <?php
-                 if (!empty($_SESSION['flash'])): ?>
+                <?php if (!empty($_SESSION['flash'])): ?>
                     <script>
                         alert('<?= htmlspecialchars($_SESSION['flash']) ?>');
                     </script>
@@ -111,8 +118,8 @@ $stmt->close();
                                         <?=  htmlspecialchars($row['game_name'])?> | 
                                         <?=  date('F j, Y', strtotime($row['blog_date']))?>
                                     </h6>
-                                    <p class="card-text lh-1 mb-2">
-                                        <?= htmlspecialchars(mb_strimwidth(html_entity_decode(strip_tags($row['blog_desc'])), 0, 180, '...')) ?>
+                                    <p class="card-text lh-1 mb-2 text-limit">
+                                        <?= htmlspecialchars(html_entity_decode(strip_tags($row['blog_desc']))) ?>
                                     </p>
                                 </div>
                             </a>
@@ -157,8 +164,8 @@ $stmt->close();
 
                 <div class="row row-cols-2 px-4">
                     <!-- Pagination -->
-                    <?php if ($total_pages > 1): ?>
                     <nav aria-label="Page navigation">
+                    <?php if ($total_pages > 1): ?>
                     <ul class="pagination justify-content-start">
                         <?php
                         $base = getLink($game_id, urlencode($search));
@@ -192,17 +199,17 @@ $stmt->close();
                         sort($displayed);
 
                         $last = 0;
-                        foreach ($displayed as $i):
-                            if ($last && $i != $last + 1):
+                        foreach ($displayed as $i){
+                            if ($last && $i != $last + 1){
                                 echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
-                            endif;
-                            if ($i == $page):
+                            }
+                            if ($i == $page){
                                 echo '<li class="page-item active"><span class="page-link">' . $i . '</span></li>';
-                            else:
+                            }else{
                                 echo '<li class="page-item"><a class="page-link" href="' . $base . '&p=' . $i . '">' . $i . '</a></li>';
-                            endif;
+                            }
                             $last = $i;
-                        endforeach;
+                        };
                         ?>
 
                         <?php if ($page < $total_pages): ?>
@@ -212,8 +219,8 @@ $stmt->close();
                             <?php endif; ?>
                         <?php endif; ?>
                     </ul>
-                    </nav>
                     <?php endif; ?>
+                    </nav>
 
 
                     <?php if (isset($_SESSION['admin']) && $_SESSION['admin'] === true): ?>
@@ -237,3 +244,5 @@ include_once(__DIR__ . '/../../include/footer.php');
 // Tutup koneksi
 mysqli_close($conn);
 ?>
+
+</body></html>

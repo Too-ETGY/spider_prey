@@ -8,7 +8,7 @@ if (isset($_POST['delete'])) {
     $id = (int) ($_POST['id'] ?? 0);
 
     if ($id > 0) {
-        // Get the icon file name first
+        // Get the icon file name
         $stmt = $conn->prepare("SELECT game_icon FROM game_table WHERE id = ?");
         $stmt->bind_param("i", $id);
         $stmt->execute();
@@ -18,33 +18,30 @@ if (isset($_POST['delete'])) {
             $row = $result->fetch_assoc();
             $iconFile = $row['game_icon'];
 
-            // Delete the game
+            // Delete the database record
             $delStmt = $conn->prepare("DELETE FROM game_table WHERE id = ?");
             $delStmt->bind_param("i", $id);
             $deleteSuccess = $delStmt->execute();
+            $delStmt->close();
 
             if ($deleteSuccess) {
-                // Delete the icon file from the server if it exists
+                // Use the delete function
                 $imagePath = __DIR__ . '/../../uploads/game/' . $iconFile;
-                if (!empty($iconFile) && file_exists($imagePath)) {
-                    unlink($imagePath);
-                }
+                deleteFile($imagePath);
+
                 $_SESSION['flash'] = 'Game Deleted Successfully!';
             } else {
                 $_SESSION['flash'] = 'Error deleting game.';
             }
-
-            $delStmt->close();
         }
 
         $stmt->close();
-        header("Location: index.php?page=game");
-        exit;
     } else {
         $_SESSION['flash'] = 'Invalid game selected.';
-        header("Location: index.php?page=game");
-        exit;
     }
+
+    header("Location: index.php?page=game");
+    exit;
 }
 
 $result = mysqli_query($conn, "SELECT * FROM game_table ORDER BY id");
@@ -56,7 +53,7 @@ while ($item = mysqli_fetch_assoc($result)) {
 ?>
 
 <main class="bg-color3 container-fluid px-0 d-flex align-items-center justify-content-center">
-    <section class="bg-color1 container my-5 mx-3 text-center text-white d-flex flex-column" style="min-height: 50vh;">
+    <section class="bg-color1 container my-5 mx-3 text-center text-white d-flex flex-column">
             <h1 class="font2 display-5 mt-5 mx-auto mb-4">Supported Games</h1>
 
             <?php if (!empty($_SESSION['flash'])): ?>
@@ -136,3 +133,5 @@ include_once(__DIR__ . '/../../include/footer.php');
 // Tutup koneksi
 mysqli_close($conn);
 ?>
+
+</body></html>

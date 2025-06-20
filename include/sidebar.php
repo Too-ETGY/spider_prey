@@ -10,9 +10,9 @@ while ($item = mysqli_fetch_assoc($game_data)) {
 mysqli_next_result($conn);
 ?>
 
-<aside class="col-12 col-md-3 p-0">
+<aside class="col-11 col-sm-4 col-md-3 p-0 mx-auto">
 
-    <div class="bg-color1 py-3 mb-3 mx-0 d-flex align-items-center justify-content-center">
+    <div class="bg-color1 p-3 mb-3 mx-0 d-flex align-items-center justify-content-center">
         <div class="dropdown">
             <button class="btn text-white dropdown-toggle rounded-0 border-end bg-color4" 
             type="button" data-bs-toggle="dropdown" aria-expanded="false"></button>
@@ -32,7 +32,7 @@ mysqli_next_result($conn);
 
         <form action="" role="search" method="get">
             <input type="hidden" name="page" value="blog">
-            <?php if($game_id!='NULL'):?>
+            <?php if($game_id!=null):?>
             <input type="hidden" name="id" value="<?=$game_id?>">
             <?php endif?>
             <div class="d-flex align-items-center bg-color4">
@@ -84,3 +84,10 @@ mysqli_next_result($conn);
         </ul>
     </div>
 </aside>
+
+
+<script>
+    // if (window.self !== window.top) {
+    //     window.top.location = window.self.location.href;
+    // };
+</script>

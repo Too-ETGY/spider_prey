@@ -27,8 +27,8 @@ $blog_desc = $row['blog_desc'];
 ?>
   
 <div class="bg-color3 container-fluid px-0 d-flex align-items-center justify-content-center">
-        <div class="container my-5 mx-2 p-0 text-center text-white row align-items-start justify-content-between" style="min-height: 50vh;">
-            <main class="bg-color4 p-0 col-12 col-md-8">
+        <div class="container-lg my-5 mx-2 p-0 text-center text-white row align-items-start justify-content-between gap-4" >
+            <main class="bg-color1 col-12 col-sm-7 col-md-8">
                 <img src="<?=BASE_URL ?>/uploads/blog/<?= $imgPath?>" alt="" class="w-100 h-auto" style="max-width=100%;">
                 <div class="align-items-start text-start p-4">
                 <div class="d-flex align-items-center justify-content-between mt-3 mx-1">
@@ -69,3 +69,5 @@ include_once(__DIR__ . '/../../include/footer.php');
 // Tutup koneksi
 mysqli_close($conn);
 ?>
+
+</body></html>

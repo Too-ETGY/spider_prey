@@ -8,10 +8,8 @@ if(!isset($_GET['id'])) {
     exit();
 }
 
-$id = (int) $_GET['id'];
-$result = mysqli_query($conn, "SELECT * FROM game_table WHERE id = $id");
-
-// Jika data tidak ditemukan, kembali ke halaman utama
+$game_id = (int) $_GET['id'];
+$result = mysqli_query($conn, "SELECT * FROM game_table WHERE id = $game_id");
 if(mysqli_num_rows($result) == 0) {
     header("Location: index.php?page=game");
     exit();
@@ -29,59 +27,19 @@ include_once(__DIR__ . '/../../include/navbar_game_read.php');
 ?>
 
 <style>
-        body {
-      background-color: #3b1144;
-      font-family: sans-serif;
+    .custom-width{
+        width:6rem;
     }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    td.tier-label {
-      width: 60px;
-      text-align: center;
-      font-weight: bold;
-      font-size: 2rem;
-      color: white;
-      vertical-align: top;
-    }
-
-    tr:nth-child(1) td.tier-label { background-color: purple; }
-    tr:nth-child(2) td.tier-label { background-color: crimson; }
-    tr:nth-child(3) td.tier-label { background-color: #9ee4ff; }
-    tr:nth-child(4) td.tier-label { background-color: #fffab0; }
-
-    td.character-cell {
-      padding: 10px;
-    }
-
-    .character {
-      display: inline-block;
-      margin: 6px;
-      text-align: center;
-      width: 80px;
-      color: white;
-    }
-
-    .character img {
-      width: 80px;
-      height: 80px;
-      border-radius: 10px;
-    }
-
-    .character span {
-      display: block;
-      font-size: 0.75rem;
-      margin-top: 4px;
+    @media max-width:768px {
+        .custom-width{
+            width:3rem;
+        }
     }
 </style>
 
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=keyboard_double_arrow_left" />
-
 <div class="container-fluid px-0 d-flex align-items-center justify-content-center">
-<main class="bg-color1 container my-5 mx-3 text-center text-white d-flex flex-column" style="min-height: 50vh;">
+<main class="bg-color1 container my-5 mx-3 text-center text-white d-flex flex-column">
     <section class="d-flex flex-column justify-content-start mt-3 mx-1">
         <div class="d-flex align-items-center justify-content-between w-100">
             <div class="d-flex align-items-center">
@@ -89,110 +47,88 @@ include_once(__DIR__ . '/../../include/navbar_game_read.php');
                 <?php            
                 if (isset($_SESSION['admin']) && $_SESSION['admin'] === true):
                 ?>
-                    <a href='index.php?page=game/edit&id=<?=$id?>' class='btn btn-warning text-white my-auto ms-2'>Edit</a>
+                    <a href='index.php?page=game/edit&id=<?=$game_id?>' class='btn btn-warning text-white my-auto ms-2'>Edit</a>
                 <?php
                 endif;
                 ?>
             </div>
             <a href="<?= BASE_URL?>/index.php?page=game" class="btn btn-light bg-color1 text-white mt-0">Back</a>
         </div>
-        <h4 class="d-flex justify-content-start font2 fw-normal fs-3 my-3">Tier List</h4>
+        <div class="d-flex align-items-center justify-content-between w-100 my-3">
+            <h4 class="d-flex justify-content-start font2 fw-normal fs-3 ">Tier List</h4>
+            <?php if (isset($_SESSION['admin']) && $_SESSION['admin'] === true):?>
+                <div class=" d-flex justify-content-end">
+                    <a href="index.php?page=tier/create&id=<?=$game_id?>" class="btn btn-success">Make Tier</a>
+                </div>
+            <?php endif;?>
+        </div>
     </section>
 
-    <!-- <section class="bg-color4 mb-4 rounded-1 align-items-center">
-    <?php 
-    $catg_run = mysqli_query($conn, "SELECT * FROM category_table WHERE game_id = $id");
+    <section class="mb-4 px-3 d-flex flex-column justify-content-center">
+        <?php
+        $tierQuery = $conn->prepare("SELECT * FROM tier_table WHERE game_id = ? ORDER BY tier_order ASC");
+        $tierQuery->bind_param("i", $game_id);
+        $tierQuery->execute();
+        $tierResult = $tierQuery->get_result();
 
-    $categories = [];
-    while ($catg_row = mysqli_fetch_assoc($catg_run)) {
-    $categories[] = $catg_row;
-    }
+        $tiers = [];
+        while ($row = mysqli_fetch_assoc($tierResult)) {
+                $tiers[] = $row;
+        }
 
-    $total = count($categories);
-    $no = 0;
-
-    foreach ($categories as $catg_row) {
-    $catg_id = $catg_row['id'];
-    echo "<div class='d-inline-block mx-auto'>";
-
-    // Get category values
-    $catg_value_run = mysqli_query($conn, "SELECT * FROM category_value_table WHERE category_id = $catg_id");
-
-    while ($value_row = mysqli_fetch_assoc($catg_value_run)) {
-            echo '<img 
-            src="' . BASE_URL . '/' . $value_row['catg_value_icon'] . '" 
-            alt="' . htmlspecialchars($value_row['catg_value_name']) . '" 
-            class=""        
-            style="width:auto; max-height:2rem; object-fit:cover;">';
-    }
-
-    echo "</div>";
-
-    $no++;
-    if ($no < $total) {
-            // Optional: Add separator between categories
-            echo '<span class="mx-1">|</span>';
-    }
-    }
-    ?>
-    </section> -->
-
-    <table>
-    <tr>
-        <td class="tier-label">S</td>
-        <td class="character-cell">
-        <div class="character-row">
-            <div class="character">
-            <img src="<?= BASE_URL ?>/asset/content/argenti_icon.png" alt="Jianxin">
-            <span>Jianxin<br>(Support, Sub DPS)</span>
+        foreach ($tiers as $tier):
+        ?>
+        <div class="row  mb-3 align-items-stretch" style="min-height:10rem;">
+            <div class="col-4 col-sm-3 col-md-2 font3 p-2 display-5 rounded-start d-flex align-items-center justify-content-center"
+                style="background-color:<?php echo $tier['color_bg']; ?>;">
+                <?= $tier['tier_name'] ?>
             </div>
-            <div class="character">
-            <img src="resource/jianxin.png" alt="Jianxin">
-            <span>Jianxin<br>(Support, Sub DPS)</span>
-            </div>
-            <div class="character">
-            <img src="resource/jianxin.png" alt="Jianxin">
-            <span>Jianxin<br>(Support, Sub DPS)</span>
-            </div>
-            <!-- Add more here -->
-        </div>
-        </td>
-    </tr>
-    <tr>
-        <td class="tier-label">A</td>
-        <td class="character-cell">
-        <div class="character-row">
-            <!-- Leave empty or add chars -->
-        </div>
-        </td>
-    </tr>
-    <tr>
-        <td class="tier-label">B</td>
-        <td class="character-cell">
-        <div class="character-row">
-            <div class="character">
-            <img src="resource/jianxin.png" alt="Jianxin">
-            <span>Jianxin<br>(Support, Sub DPS)</span>
+
+            <div class="col-8 col-sm-9 col-md-10 bg-color4 rounded-end d-flex flex-wrap justify-content-start align-items-start">
+                <?php 
+                $tier_id = $tier['id'];
+                $charQuery = mysqli_query($conn, "SELECT * FROM tier_with_char WHERE game_id = $game_id AND tier_id = $tier_id");
+                while($char_row = mysqli_fetch_assoc($charQuery)):
+                ?>
+                <a class="m-3 text-decoration-none text-white" href="?page=character&id=<?=$char_row['char_id']?>">
+                    <img class="border border-2 rounded-3 h-auto custom-width"
+                        src="<?= BASE_URL ?>/uploads/char/<?=$char_row['char_icon']?>" alt="<?=htmlspecialchars($char_row['char_name'])?>">
+                    <p class="fs-6 font1 mt-1 mb-0 text-center">
+                        <?=htmlspecialchars($char_row['char_name'])?> <br>
+                        <span class="fs-s">(<?=htmlspecialchars($char_row['char_speciality'])?>)</span>
+                    </p>
+                </a>
+                <?php endwhile;?>
             </div>
         </div>
-        </td>
-    </tr>
-    <tr>
-        <td class="tier-label">C</td>
-        <td class="character-cell">
-        <div class="character-row">
-            <div class="character">
-            <img src="resource/jianxin.png" alt="Jianxin">
-            <span>Jianxin<br>(Support, Sub DPS)</span>
+        <?php endforeach; ?>
+
+        <?php 
+        $charNull = mysqli_query($conn, "SELECT * FROM tier_with_char WHERE game_id = $game_id AND tier_id IS NULL");
+        if(mysqli_num_rows($charNull) > 0):
+            ?>
+            <div class="row  mb-3 align-items-stretch" style="min-height:10rem;">
+                <div class="col-2 font3 p-2 fs-5 rounded-start d-flex align-items-center justify-content-center text-danger text-wrap"
+                    style="background-color:black;">
+                    Unranked
+                </div>
+                <div class="col-10 bg-color4 rounded-end d-flex flex-wrap justify-content-start align-items-start">
+                    <?php while($char_row = mysqli_fetch_assoc($charNull)):?>
+                    <a class="m-3 text-decoration-none text-white" href="?page=character&id=<?=$char_row['char_id']?>">
+                        <img class="border border-2 rounded-3 h-auto custom-width"
+                            src="<?= BASE_URL ?>/uploads/char/<?=$char_row['char_icon']?>" 
+                            alt="<?=htmlspecialchars($char_row['char_name'])?>">
+                        <p class="fs-6 font1 mt-1 mb-0 text-center">
+                            <?=htmlspecialchars($char_row['char_name'])?> <br>
+                            <span class="fs-s">(<?=htmlspecialchars($char_row['char_speciality'])?>)</span>
+                        </p>
+                    </a>
+                    <?php endwhile;?>
+                </div>
             </div>
-            <div class="character">
-            <img src="resource/jianxin.png" alt="Jianxin">
-            <span>Jianxin<br>(Support, Sub DPS)</span>
-            </div>
-        </div>
-        </td>
-    </tr>
-    </table>
+        <?php endif;?>
+    </section>
+
 </main>
 </div>
 
@@ -202,3 +138,4 @@ include_once(__DIR__ . '/../../include/footer.php');
 // Tutup koneksi
 mysqli_close($conn);
 ?>
+</body></html>

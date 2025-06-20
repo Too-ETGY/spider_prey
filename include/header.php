@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spider's Prey</title>
+    <link rel="icon" type="image/png" href="<?= BASE_URL ?>/asset/content/Logo_no-bg.png">
 
     <!-- Resets -->
      <link rel="stylesheet" href="asset/resets.css">
@@ -15,4 +16,4 @@
      <link rel="stylesheet" href="<?= BASE_URL?>/asset/custom.css">
 
 </head>
-<body class="bg-color3">
+<body class="bg-color3 d-flex flex-column" style="min-height:100vh;">

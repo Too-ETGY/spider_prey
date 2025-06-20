@@ -1,13 +1,5 @@
 <!-- Footer -->
-
-<?php 
-// try {
-//     $show2 = $show;
-// } catch (Exception $e) {
-//     $show2 = true;
-// }
-// if($show): ?>
-<footer class="container-fluid bg-color1 px-0 d-flex justify-content-center align-items-center">
+<footer class="container-fluid bg-color1 px-0 d-flex justify-content-center align-items-center" id="my-footer">
     <div class="container-md p-5 pb-3 row g-0 g-md-4 text-center text-md-start">
         <section class="col-12 col-md-6">
             <a class="p-0 m-0 d-flex justify-content-center justify-content-md-start" href="#">
@@ -40,11 +32,27 @@
         </section>
     </div>
 </footer>
-<?php 
-// endif
-?>
 
 <!-- Bootstrap -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    
+    document.getElementById("my-footer").style.display = "none";
+    if (window.self !== window.top) {
+        const navbar = document.getElementById("my-navbar");
+        const footer = document.getElementById("my-footer");
+
+        if (navbar) navbar.style.display = "none";
+        if (footer) footer.style.display = "none";
+
+        document.querySelectorAll("a[href]").forEach(link => {
+            link.setAttribute("target", "_blank");
+            link.setAttribute("rel", "noopener noreferrer");
+        });
+    }
+});
+</script>
+
 </body>
 </html>

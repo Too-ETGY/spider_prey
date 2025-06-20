@@ -42,69 +42,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['update']) || isset($
         $errors[] = "Game name is required.";
     }
 
+    $uploadDir = __DIR__ . '/../../uploads/game/';
     $newfilename = $current_img;
 
-    // === Handle image upload ===
     if (!empty($_FILES['icon']['name'])) {
-        $filename = $_FILES['icon']['name'];
-        $tmpName = $_FILES['icon']['tmp_name'];
-        $fileSize = $_FILES['icon']['size'];
-        $fileExt = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-        $fileType = mime_content_type($tmpName);
-        $allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
-        $allowedExts = ['png', 'jpg', 'jpeg', 'webp'];
-
-        if (!in_array($fileType, $allowedTypes) || !in_array($fileExt, $allowedExts)) {
-            $errors[] = "Only PNG, JPG, or WEBP images are allowed.";
+        if (!empty($current_img)) {
+            deleteFile($uploadDir . $current_img);
         }
-
-        if ($fileSize > 10 * 1024 * 1024) {
-            $errors[] = "Image must be under 10MB.";
-        }
-
-        if (!getimagesize($tmpName)) {
-            $errors[] = "Uploaded file is not a valid image.";
-        }
-
-        if (empty($errors)) {
-            $uploadDir = __DIR__ . '/../../uploads/game/';
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0755, true);
-            }
-
-            if ($current_img && file_exists($uploadDir . $current_img)) {
-                unlink($uploadDir . $current_img);
-            }
-
-            $newfilename = uniqid('game_', true) . "." . $fileExt;
-            move_uploaded_file($tmpName, $uploadDir . $newfilename);
-        }
+        [$newfilename, $errorMessage] = uploadFile($_FILES['icon'], $uploadDir, "game_");
+        $errors = array_merge($errors, $errorMessage ?? []);
     }
 
-    // === Execute update with prepared statement ===
+    // === Update database ===
     if (empty($errors)) {
         $stmt = $conn->prepare("UPDATE game_table SET 
-                game_name = ?, 
-                dupes_name = ?, 
-                skill_name = ?, 
-                stat_amplifier = ?, 
-                game_icon = ? 
-                WHERE id = ?");
+            game_name = ?, 
+            dupes_name = ?, 
+            skill_name = ?, 
+            stat_amplifier = ?, 
+            game_icon = ? 
+            WHERE id = ?");
 
         $stmt->bind_param("sssssi", $name, $dupes, $skill, $amplifier, $newfilename, $id);
         $result = $stmt->execute();
 
         if ($result) {
-            if (isset($_POST['update_redirect'])) {
-                echo "<script>alert('Game Updated!'); window.location.href = 'index.php?page=categories&id=".$id."';</script>";
-            } else {
-                echo "<script>alert('Game Updated!'); window.location.href = 'index.php?page=game/read&id=".$id."';</script>";
-            }
+            $redirect = isset($_POST['update_redirect']) 
+                ? "index.php?page=categories&id=".$id 
+                : "index.php?page=game/read&id=".$id;
+            echo "<script>alert('Game Updated!'); window.location.href = '$redirect';</script>";
         } else {
             echo "<p style='color:red;'>Query error: " . $stmt->error . "</p>";
         }
-        $stmt->close();
 
+        $stmt->close();
     } else {
         foreach ($errors as $error) {
             echo "<p style='color:red;'>$error</p>";

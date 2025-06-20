@@ -156,13 +156,16 @@ $categories_result = mysqli_query($conn, "SELECT * FROM category_table WHERE gam
         <h1 class="text-white my-4 font2 display-6 p-0"><?= htmlspecialchars($game['game_name']) ?> - Character Type</h1>
 
         <form action="" method="post" class="text-white font1 p-0">
-            <div class="input-group my-3 align-items-center">
-                <input type="text" name="catg_name" class="form-control rounded" placeholder="Input a category" required>
+            <div class="input-group my-3 align-items-start">
+                <div class="form-floating mb-3">
+                    <input type="text" name="catg_name" class="form-control rounded" id="floatingInput" placeholder="Input a category" required>
+                    <label for="floatingInput">Category name</label>
+                </div>
                 <button name="add" class="btn btn-success ms-3 rounded">Submit</button>
             </div>
         </form>
 
-        <table class="table text-white">
+        <table class="table text-white table-bordered">
             <thead>
                 <tr>
                     <th scope="col">#</th>
@@ -198,7 +201,7 @@ $categories_result = mysqli_query($conn, "SELECT * FROM category_table WHERE gam
         </table>
 
         <div class="my-4 d-flex justify-content-end gap-3">
-            <a href="<?= BASE_URL ?>/index.php?page=game/edit&id=<?= $game_id ?>" class="btn btn-secondary text-white mt-3">Back</a>
+            <a href="<?= BASE_URL ?>/index.php?page=game/edit&id=<?= $game_id ?>" class="btn btn-secondary text-white mt-3">Previous</a>
             <a href="<?= BASE_URL ?>/index.php?page=game/read&id=<?= $game_id ?>" class="btn btn-secondary text-white mt-3">BACKBACK</a>
         </div>
     </div>

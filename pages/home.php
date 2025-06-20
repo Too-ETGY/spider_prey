@@ -48,15 +48,12 @@ include_once(__DIR__ . '/../include/navbar_home.php');
             <h1 class="font2 display-5 mb-4">Popular Games</h1>
             <div class="row justify-content-center text-center">
                 <?php
-                // Query untuk mengambil data mahasiswa
                 $result = mysqli_query($conn, "SELECT * FROM game_table ORDER BY id LIMIT 3");
-                // Cek apakah ada data
                 if (mysqli_num_rows($result) > 0) {
                     $no = 1;
-                    // Looping untuk menampilkan data
                     while($row = mysqli_fetch_assoc($result)) {
-                        echo "<div class='col-lg-3 col-sm-6 col-12 mt-0 text-center'>";
-                        echo "<a href='index.php?page=character/character&id=" .$row["id"]. "' class='text-decoration-none text-white justify-content-center mx-auto'>";
+                        echo "<div class='col-lg-3 col-sm-4 col-12 mt-0 text-center' class=''>";
+                        echo "<a href='index.php?page=game/read&id=" .$row["id"]. "' class='text-decoration-none text-white justify-content-center mx-3 mx-md-auto'>";
                         echo "<img src='".BASE_URL."/uploads/game/" .$row["game_icon"]. "' alt='' class='custom-img-size rounded-2 d-block p-0 mx-auto'>";
                         echo "<p class='fs-5 font1 mb-0'>".$row["game_name"]."</p></a></div>";
                     }
@@ -190,22 +187,21 @@ include_once(__DIR__ . '/../include/navbar_home.php');
     <section class="container-fluid py-4 text-center d-flex flex-column align-items-center">
         <h1 class="font2 display-5 mb-4 text-white">Check the recent news in <a href="index.php?page=blog" style="color: var(--color3);">here</a></h1>
         <div class="container-md mt-2 justify-content-center bg-color3 text-white p-0 d-flex align-items-stretch border border-black border-2 custom-iframe-size">
-            <!-- <iframe class="h-auto w-100" src="<?=BASE_URL?>/pages/blog/blog.php" title="embed blog page"></iframe> -->
-            <iframe class="h-auto w-100" src="https://blog.prydwen.gg/" title="embed blog page"></iframe>
+            <iframe class="h-auto w-100" src="index.php?page=blog" title="embed blog page"></iframe>
         </div>
     </section>
 
     <!-- Contact -->
     <section class="container-fluid py-4 text-center d-flex flex-column align-items-center">
-        <div class="row container-md justify-content-between m-0 p-0 overflow-hidden" style="max-width: 58rem;">
-            <div class="card col-6 bg-color3 text-white rounded-3 justify-content-center p-5 gap-5">
+        <div class="row container-md justify-content-between m-0 p-0 overflow-hidden gap-3" style="max-width: 58rem;">
+            <div class="card col-10 col-md-6 mx-auto mx-md-0 bg-color3 text-white rounded-3 justify-content-center p-5 gap-5">
                 <div class="d-flex justify-content-center">
                     <h2 class="font2 display-7 text-start">Meet the team on discord</h2>
                     <a href="#" class="h-100 w-auto"><img src="asset/content/discord.png" alt="" style="max-height: 5rem;"></a>
                 </div>
                 <p class="font1 fs-5 text-start">Join the ever-growing community on our Discord (over 53000 members) and meet the team!</p>
             </div>
-            <div class="card col-5 bg-color3 text-white rounded-3 justify-content-center p-5 gap-5">
+            <div class="card col-10 col-md-5 mx-auto mx-md-0 bg-color3 text-white rounded-3 justify-content-center p-5 gap-5">
                 <div class="d-flex justify-content-between align-items-center">
                     <h2 class="font2 display-7 text-start">Contact Us</h2>
                     <a href="#" class="h-100 w-auto "><img src="asset/content/email.png" alt="" style="max-height: 5rem;"></a>

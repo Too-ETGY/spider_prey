@@ -14,7 +14,7 @@ if (isset($_POST['login'])) {
     if ($admin && $password == $admin['password']) {
         $_SESSION['admin'] = true;
         echo '<script>alert("logged in")</script>';
-        header("Location: index.php?page=home");
+        header("Location: ".BASE_URL."/index.php?page=home");
         exit;
     } else {
         echo "<script>alert('Login failed. Please check your email or password.');</script>";

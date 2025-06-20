@@ -1,4 +1,5 @@
 <?php
+include_once(__DIR__ . '/../include/config.php');
 session_start();
 
 echo"<script>alert('logout')</script>";
@@ -8,5 +9,5 @@ session_unset();
 session_destroy();
 
 // // Redirect ke halaman login
-header("Location: index.php?page=home");
+header("Location: ".BASE_URL."/index.php?page=home");
 exit();

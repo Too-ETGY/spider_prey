@@ -29,7 +29,6 @@ $current_img = $row['blog_img'];
 
 <?php
 if (isset($_POST['update'])) {
-    // Sanitize and validate inputs
     $title = trim($_POST["title"]);
     $gId = trim($_POST['game_id']);
     $desc = $_POST['desc'];
@@ -127,11 +126,9 @@ if (isset($_POST['update'])) {
                     $get_game = mysqli_query($conn, "SELECT id, game_name FROM game_table");
 
                     if (mysqli_num_rows($get_game) > 0) {
-                        // Correctly reference the game_id from the blog
                         echo '<option value="' . $row['game_id'] . '" selected class="fw-bolder">'
                             . htmlspecialchars($row['game_name']) . '</option>';
 
-                        // Show other games except the one already selected
                         while ($game_data = mysqli_fetch_assoc($get_game)) {
                             if ($game_data['id'] != $row['game_id']) {
                                 echo '<option value="' . $game_data['id'] . '">'
